@@ -23,8 +23,7 @@
       findParentForm(target).find('input').checkAndTriggerAutoFillEvent();
     }, 20);
   });
-
-  window.document.addEventListener('DOMContentLoaded', function() {
+  var domContentLoaded = function() {
     // mark all values that are present when the DOM is ready.
     // We don't need to trigger a change event here,
     // as js libs start with those values already being set!
@@ -34,9 +33,13 @@
     // login forms some time after DOMContentLoaded!
     window.setTimeout(function() {
       $rootElement.find('input').checkAndTriggerAutoFillEvent();
-    }, 200);
-  }, false);
-
+    },200);
+  };
+  if(!window.document.addEventListener) {
+    window.document.attachEvent('onDOMContentLoaded',domContentLoaded);
+  } else {  
+    window.document.addEventListener('DOMContentLoaded', domContentLoaded, false);
+  }
   return;
 
   // ----------
@@ -92,8 +95,11 @@
     // Use a capturing event listener so that
     // we also get the event when it's stopped!
     // Also, the blur event does not bubble.
-    rootElement.addEventListener(eventName, onEvent, true);
-
+    if(!rootElement.addEventListener) {
+      rootElement.attachEvent('on' + eventName.slice(0,1).toUpperCase() + eventName.slice(1), onEvent);
+    } else {
+      rootElement.addEventListener(eventName, onEvent, true);
+    }
     function onEvent(event) {
       var target = event.target;
       listener(target);
